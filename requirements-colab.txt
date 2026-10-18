@@ -1,0 +1,13 @@
+# Dependencies for Feature Extraction on Google Colab / Kaggle GPU
+# Looser version ranges compatible with Colab's default Python and CUDA runtimes
+
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.40.0
+datasets>=2.18.0
+pillow>=10.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+tqdm>=4.65.0
+requests>=2.30.0
+python-dotenv>=1.0.0

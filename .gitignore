@@ -1,0 +1,66 @@
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Streamlit
+.streamlit/
+
+# Datasets and cache files (do not commit raw images or LLM response caches)
+data/raw/*
+!data/raw/.gitkeep
+data/cache/*
+!data/cache/.gitkeep
+
+# Model weights & serialized artifacts
+models/saved/*
+!models/saved/.gitkeep
+*.pt
+*.bin
+*.safetensors
+*.joblib
+*.pkl
+
+# Generated plots & outputs (commit only finalized figures)
+reports/figures/*
+!reports/figures/.gitkeep
