@@ -104,6 +104,12 @@ class CLIPScorer:
                 attention_mask=inputs.get("attention_mask"),
             )
 
+            # Handle BaseModelOutputWithPooling returned in newer transformers versions
+            if hasattr(image_features, "pooler_output") and image_features.pooler_output is not None:
+                image_features = image_features.pooler_output
+            if hasattr(text_features, "pooler_output") and text_features.pooler_output is not None:
+                text_features = text_features.pooler_output
+
             # L2 normalise both embeddings
             image_features = image_features / image_features.norm(p=2, dim=-1, keepdim=True)
             text_features = text_features / text_features.norm(p=2, dim=-1, keepdim=True)
