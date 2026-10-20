@@ -58,12 +58,12 @@ Inputs: [Claim Text] + [Image]
 *All metrics evaluated on the held-out test split (15% of images, seed 42).*
 
 ### Classification Performance
-| Model / Configuration | Macro-F1 | Consistent F1 | Contradictory F1 | Insufficient F1 | ECE (10 bins) |
+| Model / Configuration | Macro-F1 | Accuracy | Consistent F1 | Contradictory F1 | Insufficient F1 |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| CLIP-Only Baseline | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* |
-| Text-Only Baseline | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* |
-| Zero-Shot VLM | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* |
-| **Multimodal Fusion (Ours)** | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* | *[Pending eval]* |
+| CLIP-Only Baseline | 0.1667 | 0.3333 | 0.5000 | 0.0000 | 0.0000 |
+| Text-Only Baseline (TF-IDF) | 0.5000 | 0.5556 | 0.5000 | 0.0000 | 1.0000 |
+| Zero-Shot VLM (Gemini) | *Offline* | *Offline* | *Offline* | *Offline* | *Offline* |
+| **Multimodal Fusion (Ours)** | **0.2593** | **0.3333** | 0.0000 | **0.3333** | **0.4444** |
 
 ### Diagnostic Plots
 - Confusion Matrix: `reports/figures/confusion_matrix.png` *(generated via `scripts/evaluate_all.py`)*
@@ -72,12 +72,13 @@ Inputs: [Claim Text] + [Image]
 ---
 
 ## 6. Ablations and Missing-Modality Test
-- **Ablation Studies**:
-  - Fusion without CLIP score: `[Pending eval]`
-  - Fusion without NLI scores: `[Pending eval]`
+- **Ablation Studies (Held-Out Test Split)**:
+  - Full model (all 4 features): **Macro-F1 0.2593** (Accuracy: 0.3333)
+  - Fusion without CLIP score (`no_clip`, 3 features): **Macro-F1 0.2593** (Accuracy: 0.3333)
+  - Fusion without NLI scores (`no_nli`, 1 feature): **Macro-F1 0.3452** (Accuracy: 0.4444)
 - **Missing-Modality Protocol**:
-  - Missing image: Image-derived features imputed with train-set means; `missing_image=1` indicator active.
-  - Evaluated performance: `[Pending eval]`
+  - Scenario: Visual image absent; `clip_image_claim_score` imputed with training-split empirical mean (`0.2979`).
+  - Evaluated performance: **Macro-F1 0.2593** (Macro-F1 Drop: `0.0000`).
 
 ---
 
