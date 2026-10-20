@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from src.config import FUSION_MODEL_PATH, DISCLAIMER_TEXT, LABELS, SIGNAL_COLUMNS
+from src.features.schemas import extract_model_input_features
 from src.models.fusion import FusionClassifier
 from src.features.blip_captioner import BLIPCaptioner
 from src.features.clip_scorer import CLIPScorer
@@ -51,7 +52,26 @@ class MultimodalFactPipeline:
         self.device = device
 
         logger.info(f"Initializing MultimodalFactPipeline (device={self.device})...")
-        self.model = FusionClassifier.load(self.fusion_model_path)
+
+        # Auto-training fallback for deployment if artifact is not present but features.csv is
+        if not self.fusion_model_path.exists():
+            features_csv = Path("data/processed/features.csv")
+            if features_csv.exists():
+                logger.info(f"Model artifact not found at {self.fusion_model_path}. Training from {features_csv}...")
+                df = pd.read_csv(features_csv)
+                train_df = df[df["split"] == "train"]
+                X_train = extract_model_input_features(train_df)
+                y_train = train_df["label"].values
+                self.model = FusionClassifier(C=1.0)
+                self.model.fit(X_train, y_train)
+                self.fusion_model_path.parent.mkdir(parents=True, exist_ok=True)
+                self.model.save(self.fusion_model_path)
+                logger.info(f"Auto-trained and saved model artifact to {self.fusion_model_path}")
+            else:
+                self.model = FusionClassifier.load(self.fusion_model_path)
+        else:
+            self.model = FusionClassifier.load(self.fusion_model_path)
+
         self.blip_captioner = BLIPCaptioner(device=self.device)
         self.clip_scorer = CLIPScorer(device=self.device)
         self.nli_scorer = NLIScorer(device=self.device)
@@ -73,6 +93,11 @@ class MultimodalFactPipeline:
         """
         if not isinstance(claim, str) or not claim.strip():
             raise ValueError("Claim text must be a non-empty string.")
+
+        if isinstance(image, (str, Path)):
+            img_p = Path(image)
+            if not img_p.exists():
+                raise FileNotFoundError(f"Image file does not exist: {image}")
 
         # 1. Generate natural language evidence caption via BLIP
         evidence_caption = self.blip_captioner.generate_caption(image)

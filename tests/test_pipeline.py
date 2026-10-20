@@ -51,3 +51,10 @@ def test_pipeline_empty_claim_raises():
 
     with pytest.raises(ValueError):
         pipeline.predict(image=image_path, claim="   ")
+
+
+def test_pipeline_nonexistent_image_raises():
+    """Verifies that a nonexistent image path raises FileNotFoundError."""
+    pipeline = MultimodalFactPipeline(fusion_model_path=FUSION_MODEL_PATH, device="cpu")
+    with pytest.raises(FileNotFoundError):
+        pipeline.predict(image="nonexistent_image_file.jpg", claim="Some claim")

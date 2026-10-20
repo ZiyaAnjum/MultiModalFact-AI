@@ -258,7 +258,51 @@ def run_ablation_study(
 ) -> Dict[str, Any]:
     """Runs ablations: full model, without CLIP score, without NLI scores.
 
-    Raises:
-        NotImplementedError: Stub implementation for Phase 2 setup.
+    Configurations:
+      1. 'full_model': all 4 signal columns
+      2. 'no_clip': only NLI signals ('nli_entailment_score', 'nli_contradiction_score', 'nli_neutral_score')
+      3. 'no_nli': only CLIP signal ('clip_image_claim_score')
+
+    Args:
+        train_df: Training split DataFrame containing signal columns and 'label'.
+        val_df: Validation split DataFrame (optional / reference).
+        test_df: Held-out test split DataFrame.
+
+    Returns:
+        Dict mapping configuration names to metrics and feature descriptions.
     """
-    raise NotImplementedError("run_ablation_study is a stub. Implementation scheduled for Ziya.")
+    from sklearn.linear_model import LogisticRegression
+    from src.config import RANDOM_SEED
+
+    feature_sets = {
+        "full_model": SIGNAL_COLUMNS,
+        "no_clip": ["nli_entailment_score", "nli_contradiction_score", "nli_neutral_score"],
+        "no_nli": ["clip_image_claim_score"],
+    }
+
+    # Filter by split column if present
+    tr = train_df[train_df["split"] == "train"] if "split" in train_df.columns else train_df
+    te = test_df[test_df["split"] == "test"] if "split" in test_df.columns else test_df
+
+    y_train = list(tr["label"])
+    y_test = list(te["label"])
+
+    results: Dict[str, Any] = {}
+
+    for name, cols in feature_sets.items():
+        X_train = tr[cols]
+        X_test = te[cols]
+
+        clf = LogisticRegression(C=1.0, max_iter=500, random_state=RANDOM_SEED)
+        clf.fit(X_train, y_train)
+
+        y_pred = list(clf.predict(X_test))
+        y_prob = clf.predict_proba(X_test) if hasattr(clf, "predict_proba") else None
+
+        metrics = compute_metrics(y_test, y_pred, y_prob)
+        results[name] = {
+            "features": cols,
+            "metrics": metrics,
+        }
+
+    return results
