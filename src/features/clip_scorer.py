@@ -9,6 +9,7 @@ import logging
 from typing import Union, List
 from pathlib import Path
 from PIL import Image
+# pyrefly: ignore[missing-import]
 import torch
 from transformers import CLIPProcessor, CLIPModel
 from src.config import CLIP_MODEL_ID
@@ -103,6 +104,10 @@ class CLIPScorer:
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs.get("attention_mask"),
             )
+
+            # Handle BaseModelOutputWithPooling in newer transformers versions
+            image_features = getattr(image_features, "pooler_output", image_features)
+            text_features = getattr(text_features, "pooler_output", text_features)
 
             # Handle BaseModelOutputWithPooling returned in newer transformers versions
             if hasattr(image_features, "pooler_output") and image_features.pooler_output is not None:
