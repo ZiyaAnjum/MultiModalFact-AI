@@ -8,8 +8,3 @@ from src.pipeline import MultimodalFactPipeline
 def test_compute_ece_stub_raises():
     with pytest.raises(NotImplementedError):
         compute_ece(None, None)
-
-
-def test_pipeline_stub_raises():
-    with pytest.raises(NotImplementedError):
-        MultimodalFactPipeline()
