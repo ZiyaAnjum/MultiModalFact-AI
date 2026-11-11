@@ -66,7 +66,7 @@ def main() -> int:
     parser.add_argument(
         "--device",
         type=str,
-        default="cuda",
+        default="cpu",
         help="Compute device ('cuda' or 'cpu')",
     )
     parser.add_argument(
@@ -86,7 +86,11 @@ def main() -> int:
         action="store_true",
         help="Validate an existing features.csv against the project schema contract and exit",
     )
-    args = parser.parse_args()
+    if args.batch_size <= 0:
+        parser.error("--batch-size must be greater than 0")
+
+    if args.checkpoint_interval <= 0:
+        parser.error("--checkpoint-interval must be greater than 0")
 
     # Standalone validation mode
     if args.validate:

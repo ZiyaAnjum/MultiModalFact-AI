@@ -210,6 +210,11 @@ def extract_all_features(
             raw_path = str(row["image_path"])
 
             try:
+                claim_val = row.get("claim")
+                claim_str = str(claim_val).strip() if pd.notna(claim_val) else ""
+                if not claim_str:
+                    raise ValueError(f"Empty or missing claim for sample_id='{sample_id}'.")
+
                 resolved_p = resolve_image_path(raw_path, images_dir=images_dir)
                 # Verify PIL can open it
                 with Image.open(resolved_p) as img_check:
